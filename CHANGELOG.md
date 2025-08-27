@@ -7,8 +7,8 @@ y este proyecto adhiere a [Semantic Versioning](http://semver.org/spec/v2.0.0.ht
 
 ### Added
 - Estructura inicial del proyecto.  24/08/2025.
-- Instrucciones para el entorno virtual en el `README.md`.25/08/2025.  
-- Instrucciones para la instalación de los paquetes en el `README.md`.26/08/2025.
+- Instrucciones para la instalación de los paquetes en el `README.md`.25/08/2025.
+- Instrucciones para el entorno virtual en el `README.md`.26/08/2025.  
 
 ### Changed
 - Ningún cambio registrado en esta versión inicial.
