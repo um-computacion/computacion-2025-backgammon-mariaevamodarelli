@@ -19,5 +19,30 @@ class TestDice(unittest.TestCase):
         result = dice.roll()
         self.assertEqual(dice.__last_roll__, result)
 
+
+    def test_get_last_roll_after_roll(self):
+        dice = Dice()
+        rolled = dice.roll()
+        self.assertEqual(dice.get_last_roll(), rolled)
+
+    def test_set_last_roll_accepts_valid_values(self):
+        dice = Dice()
+        dice.set_last_roll((3, 5))
+        self.assertEqual(dice.get_last_roll(), (3, 5))
+        dice.set_last_roll((0, 0))
+        self.assertEqual(dice.get_last_roll(), (0, 0))
+
+    def test_set_last_roll_rejects_invalid_values(self):
+        dice = Dice()
+    
+        with self.assertRaises(ValueError):
+            dice.set_last_roll((7, 1))
+        
+        with self.assertRaises(ValueError):
+            dice.set_last_roll((1,))
+       
+        with self.assertRaises(ValueError):
+            dice.set_last_roll("2,2")
+
 if __name__ == "__main__":
     unittest.main()
