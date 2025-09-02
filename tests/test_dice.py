@@ -32,15 +32,18 @@ class TestDice(unittest.TestCase):
         dice.set_last_roll((0, 0))
         self.assertEqual(dice.get_last_roll(), (0, 0))
 
-    def test_set_last_roll_rejects_invalid_values(self):
+    def test_set_last_roll_rejects_value_out_of_range(self):
         dice = Dice()
-    
         with self.assertRaises(ValueError):
-            dice.set_last_roll((7, 1))
-        
+            dice.set_last_roll((7, 1))  
+
+    def test_set_last_roll_rejects_tuple_wrong_length(self):
+        dice = Dice()
         with self.assertRaises(ValueError):
-            dice.set_last_roll((1,))
-       
+            dice.set_last_roll((1,))  
+            
+    def test_set_last_roll_rejects_wrong_type(self):
+        dice = Dice()
         with self.assertRaises(ValueError):
             dice.set_last_roll("2,2")
 
