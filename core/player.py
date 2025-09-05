@@ -7,3 +7,6 @@ class Player:
 
     def get_name(self):
         return self.__name__
+
+    def set_name(self, value):
+        self.__name__ = value

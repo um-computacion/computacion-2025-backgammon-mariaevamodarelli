@@ -13,5 +13,10 @@ class TestPlayer(unittest.TestCase):
         player = Player("Juan", "negro")
         self.assertEqual(player.get_name(), "Juan")
 
+    def test_set_name_changes_player_name(self):
+        player = Player("Eva", "blanco")
+        player.set_name("Ana")
+        self.assertEqual(player.__name__, "Ana")
+
 if __name__ == "__main__":
     unittest.main()
