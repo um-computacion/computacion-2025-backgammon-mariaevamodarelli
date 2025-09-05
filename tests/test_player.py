@@ -18,5 +18,14 @@ class TestPlayer(unittest.TestCase):
         player.set_name("Ana")
         self.assertEqual(player.__name__, "Ana")
 
+    def test_get_color_returns_player_color(self):
+        player = Player("Eva", "blanco")
+        self.assertEqual(player.get_color(), "blanco")
+
+    def test_set_color_changes_player_color(self):
+        player = Player("Eva", "blanco")
+        player.set_color("negro")
+        self.assertEqual(player.__color__, "negro")
+
 if __name__ == "__main__":
     unittest.main()

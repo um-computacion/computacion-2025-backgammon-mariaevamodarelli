@@ -10,3 +10,9 @@ class Player:
 
     def set_name(self, value):
         self.__name__ = value
+
+    def get_color(self):
+        return self.__color__
+
+    def set_color(self, value):
+        self.__color__ = value
