@@ -27,5 +27,14 @@ class TestPlayer(unittest.TestCase):
         player.set_color("negro")
         self.assertEqual(player.__color__, "negro")
 
+    def test_get_checkers_starts_at_15(self):
+        player = Player("Eva", "blanco")
+        self.assertEqual(player.get_checkers(), 15)
+
+    def test_set_checkers_accepts_non_negative_int(self):
+        player = Player("Eva", "blanco")
+        player.set_checkers(12)
+        self.assertEqual(player.__checkers__, 12)
+        
 if __name__ == "__main__":
     unittest.main()

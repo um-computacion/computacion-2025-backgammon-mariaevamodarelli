@@ -16,3 +16,13 @@ class Player:
 
     def set_color(self, value):
         self.__color__ = value
+
+    def get_checkers(self):
+        return self.__checkers__
+
+    def set_checkers(self, value):
+
+        if isinstance(value, int) and value >= 0:
+            self.__checkers__ = value
+        else:
+            raise ValueError("La cantidad de fichas debe ser un entero >= 0")
