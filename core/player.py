@@ -7,15 +7,26 @@ class Player:
 
     def get_name(self):
         return self.__name__
-
+    
     def set_name(self, value):
-        self.__name__ = value
+       
+        if isinstance(value, str) and value.strip():
+            self.__name__ = value
+        else:
+            raise ValueError("El nombre no puede ser vacío")
+
+    def set_color(self, value):
+
+        if isinstance(value, str) and value.strip():
+            self.__color__ = value
+        else:
+            raise ValueError("El color no puede ser vacío")
+
+
+ 
 
     def get_color(self):
         return self.__color__
-
-    def set_color(self, value):
-        self.__color__ = value
 
     def get_checkers(self):
         return self.__checkers__
