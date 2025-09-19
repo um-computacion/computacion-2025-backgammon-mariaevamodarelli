@@ -65,6 +65,32 @@ class TestBoard(unittest.TestCase):
         except ValueError:
             pass
 
+
+    def test_reset_starting_position_sets_expected_counts(self):
+        b = Board()
+        b.reset_starting_position()
+        self.assertEqual(len(b.get_points()), 24)
+
+        self.assertEqual(b.get_point(0), 2)   
+        self.assertEqual(b.get_point(5), 5)   
+        self.assertEqual(b.get_point(7), 3)   
+        self.assertEqual(b.get_point(11), 5)  
+        self.assertEqual(b.get_point(12), 5)  
+        self.assertEqual(b.get_point(16), 3)  
+        self.assertEqual(b.get_point(18), 5)  
+        self.assertEqual(b.get_point(23), 2)  
+
+       
+        for i, v in enumerate(b.get_points()):
+            if i not in (0, 5, 7, 11, 12, 16, 18, 23):
+                self.assertEqual(v, 0, f"El punto {i} debería ser 0")
+
+    def test_total_checkers_is_30(self):
+        b = Board()
+        b.reset_starting_position()
+        self.assertEqual(sum(b.get_points()), 30)
+
+
 if __name__ == "__main__":
     unittest.main()
 

@@ -19,3 +19,20 @@ class Board:
             self.__points__[index] = value
         else:
             raise ValueError("index 0..23 y value entero >= 0")
+    def reset_starting_position(self):
+
+       
+        self.__points__ = [0] * 24
+
+        iniciales = {
+            0: 2,   
+            5: 5,   
+            7: 3,   
+            11: 5,  
+            12: 5,  
+            16: 3,  
+            18: 5,  
+            23: 2   
+        }
+        for idx, cantidad in iniciales.items():
+            self.__points__[idx] = cantidad
