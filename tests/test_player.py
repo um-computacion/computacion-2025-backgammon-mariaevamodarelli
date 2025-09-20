@@ -36,5 +36,13 @@ class TestPlayer(unittest.TestCase):
         player.set_checkers(12)
         self.assertEqual(player.__checkers__, 12)
         
+    def test_set_checkers_rejects_more_than_15(self):
+        player = Player("Eva", "blanco")
+        try:
+            player.set_checkers(16)
+            self.fail("No lanzó ValueError con más de 15 fichas")
+        except ValueError:
+            pass
+
 if __name__ == "__main__":
     unittest.main()

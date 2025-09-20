@@ -31,9 +31,10 @@ class Player:
     def get_checkers(self):
         return self.__checkers__
 
+
     def set_checkers(self, value):
 
-        if isinstance(value, int) and value >= 0:
+        if isinstance(value, int) and 0 <= value <= 15:
             self.__checkers__ = value
         else:
-            raise ValueError("La cantidad de fichas debe ser un entero >= 0")
+            raise ValueError("La cantidad de fichas debe ser un entero entre 0 y 15")
