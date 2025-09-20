@@ -46,6 +46,16 @@ class TestDice(unittest.TestCase):
         dice = Dice()
         with self.assertRaises(ValueError):
             dice.set_last_roll("2,2")
+    def test_is_double_returns_true_when_both_dice_equal(self):
+        dice = Dice()
+        dice.set_last_roll((4, 4))
+        self.assertTrue(dice.is_double())
+
+    def test_is_double_returns_false_when_dice_different(self):
+        dice = Dice()
+        dice.set_last_roll((3, 5))
+        self.assertFalse(dice.is_double())
+
 
 if __name__ == "__main__":
     unittest.main()

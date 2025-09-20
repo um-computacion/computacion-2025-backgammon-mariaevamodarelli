@@ -14,6 +14,10 @@ class Dice:
     def get_last_roll(self):
         return self.__last_roll__
 
+    def is_double(self):
+
+        return self.__last_roll__[0] == self.__last_roll__[1]
+
     def set_last_roll(self, value):
         if (
             isinstance(value, tuple) 
