@@ -90,6 +90,11 @@ class TestBoard(unittest.TestCase):
         b.reset_starting_position()
         self.assertEqual(sum(b.get_points()), 30)
 
+    def test_get_total_checkers(self):
+        b = Board()
+        b.reset_starting_position()
+        self.assertEqual(b.get_total_checkers(), 30)  
+
 
 if __name__ == "__main__":
     unittest.main()
