@@ -36,3 +36,6 @@ class Board:
         }
         for idx, cantidad in iniciales.items():
             self.__points__[idx] = cantidad
+
+    def get_total_checkers(self):
+        return sum(self.__points__)
