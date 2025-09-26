@@ -95,6 +95,12 @@ class TestBoard(unittest.TestCase):
         b.reset_starting_position()
         self.assertEqual(b.get_total_checkers(), 30)  
 
+    def test_clear_board_sets_all_points_to_zero(self):
+        b = Board()
+        b.set_point(5, 3)
+        b.clear_board()
+        self.assertTrue(all(v == 0 for v in b.get_points()))
+
 
 if __name__ == "__main__":
     unittest.main()

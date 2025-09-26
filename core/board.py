@@ -39,3 +39,6 @@ class Board:
 
     def get_total_checkers(self):
         return sum(self.__points__)
+
+    def clear_board(self):
+        self.__points__ = [0] * 24
