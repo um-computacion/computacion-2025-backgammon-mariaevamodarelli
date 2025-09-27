@@ -45,3 +45,6 @@ class Board:
 
     def is_empty(self):
         return all(v == 0 for v in self.__points__)
+
+    def get_non_empty_points(self):
+        return [i for i, v in enumerate(self.__points__) if v > 0]

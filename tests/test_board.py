@@ -111,6 +111,13 @@ class TestBoard(unittest.TestCase):
         b.set_point(0, 1)
         self.assertFalse(b.is_empty())
 
+    def test_get_non_empty_points_returns_correct_indices(self):
+        b = Board()
+        b.clear_board()
+        b.set_point(3, 2)
+        b.set_point(7, 5)
+        self.assertEqual(b.get_non_empty_points(), [3, 7])
+
 
 if __name__ == "__main__":
     unittest.main()
