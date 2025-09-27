@@ -42,3 +42,6 @@ class Board:
 
     def clear_board(self):
         self.__points__ = [0] * 24
+
+    def is_empty(self):
+        return all(v == 0 for v in self.__points__)
