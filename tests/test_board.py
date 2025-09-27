@@ -101,6 +101,16 @@ class TestBoard(unittest.TestCase):
         b.clear_board()
         self.assertTrue(all(v == 0 for v in b.get_points()))
 
+    def test_is_empty_returns_true_when_board_has_no_checkers(self):
+        b = Board()
+        b.clear_board()
+        self.assertTrue(b.is_empty())
+
+    def test_is_empty_returns_false_when_board_has_checkers(self):
+        b = Board()
+        b.set_point(0, 1)
+        self.assertFalse(b.is_empty())
+
 
 if __name__ == "__main__":
     unittest.main()
