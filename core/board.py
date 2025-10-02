@@ -48,3 +48,8 @@ class Board:
 
     def get_non_empty_points(self):
         return [i for i, v in enumerate(self.__points__) if v > 0]
+
+    def has_checkers_at(self, index):
+        if isinstance(index, int) and 0 <= index < 24:
+            return self.__points__[index] > 0
+        raise ValueError("El índice debe estar entre 0 y 23")
