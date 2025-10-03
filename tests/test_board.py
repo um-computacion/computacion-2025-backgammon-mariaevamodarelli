@@ -118,6 +118,22 @@ class TestBoard(unittest.TestCase):
         b.set_point(7, 5)
         self.assertEqual(b.get_non_empty_points(), [3, 7])
 
+    def test_has_checkers_at_returns_true_if_point_has_checkers(self):
+        b = Board()
+        b.set_point(5, 2)
+        self.assertTrue(b.has_checkers_at(5))
+
+    def test_has_checkers_at_returns_false_if_point_is_empty(self):
+        b = Board()
+        self.assertFalse(b.has_checkers_at(10))
+
+    def test_move_checkers_moves_one_checker(self):
+        b = Board()
+        b.set_point(0, 2)
+        b.move_checkers(0, 5, 1)
+        self.assertEqual(b.get_point(0), 1)
+        self.assertEqual(b.get_point(5), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -53,3 +53,16 @@ class Board:
         if isinstance(index, int) and 0 <= index < 24:
             return self.__points__[index] > 0
         raise ValueError("El índice debe estar entre 0 y 23")
+
+    def move_checkers(self, from_idx, to_idx, n=1):
+
+        if (isinstance(from_idx, int) and isinstance(to_idx, int) and
+            0 <= from_idx < 24 and 0 <= to_idx < 24 and
+            isinstance(n, int) and n > 0):
+            if self.__points__[from_idx] >= n:
+                self.__points__[from_idx] -= n
+                self.__points__[to_idx] += n
+            else:
+                raise ValueError("No hay suficientes fichas en el punto de origen")
+        else:
+            raise ValueError("Parámetros inválidos para mover fichas")
