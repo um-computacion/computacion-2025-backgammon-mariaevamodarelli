@@ -66,3 +66,8 @@ class Board:
                 raise ValueError("No hay suficientes fichas en el punto de origen")
         else:
             raise ValueError("Parámetros inválidos para mover fichas")
+                
+                
+    def reset_board(self):
+        self.__points__ = [0] * 24
+
