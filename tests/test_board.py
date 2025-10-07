@@ -134,6 +134,13 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(b.get_point(0), 1)
         self.assertEqual(b.get_point(5), 1)
 
+    def test_reset_board_sets_all_points_to_zero(self):
+        b = Board()
+        b.set_point(10, 5)
+        b.reset_board()
+        self.assertTrue(all(v == 0 for v in b.get_points()))
+
+
 
 if __name__ == "__main__":
     unittest.main()
