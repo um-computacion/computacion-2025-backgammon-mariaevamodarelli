@@ -33,3 +33,9 @@ Arranqué por la lógica en `core/`. La primera clase implementada es `Dice` por
 
 Estos métodos amplían la funcionalidad de la clase `Board` sin modificar su estructura central. Sirven como utilidades para validar estados del tablero y preparar la lógica del juego más adelante.  
 - **Tests**: se agregaron pruebas unitarias para cada nuevo método verificando su comportamiento esperado y la detección de errores en casos inválidos.
+
+## Clase BackgammonGame## Clase BackgammonGame
+- **Propósito**: orquestar las piezas del juego sin mezclar responsabilidades. La lógica de dados, tablero y jugadores se mantiene en sus clases; `BackgammonGame` solo las integra.
+- **Diseño**: el constructor recibe `player1`, `player2`, `board` y `dice`. Se exponen getters simples (`get_player1`, `get_player2`, `get_board`, `get_dice`) para acceder a los componentes cuando se necesiten.
+- **Justificación**: separar la orquestación del estado evita acoplar reglas de juego dentro de `Board`, `Dice` o `Player`. Esto facilita testear cada parte por separado y permite evolucionar reglas (turnos, movimientos válidos, etc.) más adelante.
+- **Tests**: se prueba que al crear `BackgammonGame` con instancias reales de `Player`, `Board` y `Dice`, los getters devuelven exactamente las mismas referencias (inyección de dependencias).
