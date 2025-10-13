@@ -4,7 +4,6 @@ Todas las modificaciones notables de este proyecto se documentarán en este arch
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
-## [Unreleased]
 
 ### Added
 - Método `is_double()` en `Dice` y sus tests (#8).
@@ -15,6 +14,13 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Métodos `get_color` y `set_color` en `Player` y sus tests (#15).
 - Clase `Board` inicializada con 24 posiciones vacías (#29).
 - Método `reset_starting_position()` en `Board` y sus tests (#29).
+- Método `get_total_checkers()` en `Board` y su test.
+- Método `clear_board()` en `Board` y su test.
+- Método `is_empty()` en `Board` y sus tests.
+- Método `get_non_empty_points()` en `Board` y su test.
+- Método `has_checkers_at()` en `Board` y sus tests.
+- Método `move_checkers()` en `Board` y su test.
+- Método `reset_board()` en `Board` y su test.
 
 ### Changed
 - Algunos tests de `Dice` actualizados para mejorar cobertura.
