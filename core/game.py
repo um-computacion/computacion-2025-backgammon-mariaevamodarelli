@@ -27,3 +27,10 @@ class BackgammonGame:
         self.__board__.reset_starting_position()
         self.__dice__.roll()
         return self.__dice__.get_last_roll()
+
+    def restart_game(self):
+
+        self.__board__.reset_board()
+        self.__board__.reset_starting_position()
+        self.__dice__.roll()
+        return self.__dice__.get_last_roll()
