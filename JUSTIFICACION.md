@@ -39,3 +39,15 @@ Estos métodos amplían la funcionalidad de la clase `Board` sin modificar su es
 - **Diseño**: el constructor recibe `player1`, `player2`, `board` y `dice`. Se exponen getters simples (`get_player1`, `get_player2`, `get_board`, `get_dice`) para acceder a los componentes cuando se necesiten.
 - **Justificación**: separar la orquestación del estado evita acoplar reglas de juego dentro de `Board`, `Dice` o `Player`. Esto facilita testear cada parte por separado y permite evolucionar reglas (turnos, movimientos válidos, etc.) más adelante.
 - **Tests**: se prueba que al crear `BackgammonGame` con instancias reales de `Player`, `Board` y `Dice`, los getters devuelven exactamente las mismas referencias (inyección de dependencias).
+
+### Método start_game()
+- **Propósito**: preparar el inicio de la partida combinando los componentes principales.
+  Llama a `reset_starting_position()` del `Board` para dejar el tablero en la posición inicial
+  y a `roll()` de `Dice` para realizar la primera tirada.
+- **Justificación**: este método centraliza el proceso de inicio sin mezclar responsabilidades.
+  Permite que la clase `BackgammonGame` coordine las otras clases sin modificar su lógica interna.
+  De esta forma, se conserva la separación de responsabilidades y se facilita la extensión futura
+  (por ejemplo, manejar turnos o verificar quién empieza).
+- **Tests**: se validó que el tablero quede con 30 fichas (15 por jugador) y que la primera tirada
+  devuelva dos valores entre 1 y 6.
+
