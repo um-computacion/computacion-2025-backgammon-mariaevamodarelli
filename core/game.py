@@ -21,3 +21,9 @@ class BackgammonGame:
     def get_dice(self):
 
         return self.__dice__
+
+    def start_game(self):
+
+        self.__board__.reset_starting_position()
+        self.__dice__.roll()
+        return self.__dice__.get_last_roll()
