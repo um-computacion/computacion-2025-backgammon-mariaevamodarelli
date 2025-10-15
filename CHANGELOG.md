@@ -30,6 +30,11 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Método `reset_board()` en `Board` y su test.
 - Clase `BackgammonGame` con getters básicos (`get_player1`, `get_player2`, `get_board`, `get_dice`).
 - Tests de `BackgammonGame` para inicialización y getters.
+- Método `start_game()` en `BackgammonGame`:
+  reinicia el tablero con la disposición inicial y realiza la primera tirada de dados.
+- Tests de `BackgammonGame.start_game()` que verifican la reinicialización del tablero
+  y la validez de la tirada de dados.
+
 
 ### Changed
 - Algunos tests de `Dice` actualizados para mejorar cobertura.
