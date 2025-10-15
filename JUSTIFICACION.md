@@ -51,3 +51,10 @@ Estos métodos amplían la funcionalidad de la clase `Board` sin modificar su es
 - **Tests**: se validó que el tablero quede con 30 fichas (15 por jugador) y que la primera tirada
   devuelva dos valores entre 1 y 6.
 
+### Método restart_game()
+- **Propósito**: reiniciar una partida sin necesidad de crear nuevos objetos. 
+  Limpia el tablero, vuelve a dejar las fichas en la posición inicial y lanza los dados nuevamente.  
+- **Justificación**: este método simplifica el reinicio del juego, evitando repetir pasos manuales
+  o crear instancias nuevas de las clases principales. Es útil para pruebas, reinicios o nuevas rondas.  
+- **Tests**: se comprobó que, tras llamar a `restart_game()`, el tablero queda nuevamente con
+  30 fichas (15 por jugador) y se genera una nueva tirada de dados válida.
