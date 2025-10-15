@@ -34,6 +34,10 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   reinicia el tablero con la disposición inicial y realiza la primera tirada de dados.
 - Tests de `BackgammonGame.start_game()` que verifican la reinicialización del tablero
   y la validez de la tirada de dados.
+- Método `restart_game()` en `BackgammonGame`:
+  reinicia el tablero, restablece la posición inicial y realiza una nueva tirada de dados.
+- Tests de `BackgammonGame.restart_game()` que verifican la reinicialización del tablero
+  y la nueva tirada de dados.
 
 
 ### Changed
