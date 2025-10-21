@@ -58,3 +58,13 @@ Estos métodos amplían la funcionalidad de la clase `Board` sin modificar su es
   o crear instancias nuevas de las clases principales. Es útil para pruebas, reinicios o nuevas rondas.  
 - **Tests**: se comprobó que, tras llamar a `restart_game()`, el tablero queda nuevamente con
   30 fichas (15 por jugador) y se genera una nueva tirada de dados válida.
+
+### Método end_game()
+- **Propósito**: indicar el final de la partida y limpiar los estados relacionados, 
+  en este caso la última tirada de dados.  
+- **Justificación**: al mantener un atributo interno `__game_over__` se puede 
+  controlar desde la clase principal si la partida sigue o no, 
+  sin necesidad de eliminar las instancias de `Board`, `Dice` o `Player`.  
+- **Tests**: se verifica que al finalizar el juego, el atributo `__game_over__` 
+  quede en `True`, que los dados se reinicien a `(0, 0)` y que el método 
+  devuelva el mensaje `"Juego finalizado"`.
