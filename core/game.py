@@ -34,3 +34,12 @@ class BackgammonGame:
         self.__board__.reset_starting_position()
         self.__dice__.roll()
         return self.__dice__.get_last_roll()
+
+    def end_game(self):
+        """
+        Finaliza la partida.
+        Marca el juego como terminado y limpia los dados.
+        """
+        self.__game_over__ = True
+        self.__dice__.set_last_roll((0, 0))
+        return "Juego finalizado"

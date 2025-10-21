@@ -48,6 +48,20 @@ class TestBackgammonGame(unittest.TestCase):
         self.assertEqual(len(result), 2)
         self.assertTrue(all(1 <= v <= 6 for v in result))
 
+    def test_end_game_sets_flag_and_clears_dice(self):
+        p1 = Player("Eva", "blanco")
+        p2 = Player("Carla", "negro")
+        b = Board()
+        d = Dice()
+        game = BackgammonGame(p1, p2, b, d)
+
+        result = game.end_game()
+
+        self.assertTrue(game.__game_over__)
+        self.assertEqual(game.get_dice().get_last_roll(), (0, 0))
+        self.assertEqual(result, "Juego finalizado")
+
+
 
 if __name__ == "__main__":
     unittest.main()
