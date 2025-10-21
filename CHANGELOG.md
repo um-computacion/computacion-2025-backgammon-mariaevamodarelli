@@ -38,6 +38,10 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   reinicia el tablero, restablece la posición inicial y realiza una nueva tirada de dados.
 - Tests de `BackgammonGame.restart_game()` que verifican la reinicialización del tablero
   y la nueva tirada de dados.
+- Método `end_game()` en `BackgammonGame`: 
+  marca la partida como finalizada y limpia la última tirada de dados.
+- Tests de `BackgammonGame.end_game()` que verifican el estado `__game_over__`
+  y la limpieza de los dados.
 
 
 ### Changed
