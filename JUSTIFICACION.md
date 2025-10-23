@@ -68,3 +68,37 @@ Estos métodos amplían la funcionalidad de la clase `Board` sin modificar su es
 - **Tests**: se verifica que al finalizar el juego, el atributo `__game_over__` 
   quede en `True`, que los dados se reinicien a `(0, 0)` y que el método 
   devuelva el mensaje `"Juego finalizado"`.
+
+## Interfaz gráfica con PyGame
+
+### Objetivo
+Agregar una interfaz mínima pero funcional para **visualizar** el backgammon, **tirar los dados** y **ver el turno** de cada jugador, reutilizando toda la lógica existente en `core/` sin duplicar reglas dentro de la UI.
+
+### Decisiones de diseño
+- **Separación de responsabilidades**: la UI vive en `pygame_ui/game_window.py`. La lógica del juego (tablero, jugadores, dados) sigue en `core/`.
+- **Estructura del tablero**: `Board` representa 24 puntos (0..23). Para poder dibujar fichas de cada color, cada punto guarda un diccionario con `{"count": n, "color": "blanco"|"negro"|None}`.
+- **Mapeo visual**:
+  - 12 triángulos arriba (izq→der) y 12 abajo (der→izq) para simular el tablero real.
+  - Las fichas se dibujan como círculos (blanco/negro) apilados desde el borde.
+- **Flujo de inicio**: `BackgammonGame.start_game()` reinicia posiciones y hace una primera tirada. La UI la muestra junto con el **turno actual**.
+- **Interacción**:
+  - **ESPACIO**: tira los dados y alterna el turno (visual). Por ahora no mueve fichas; la UI sólo refleja estado.
+  - Cierre de ventana con el evento estándar de PyGame.
+
+### Qué se ve en pantalla
+- Tablero con triángulos alternados (superior rojo/gris, inferior azul/gris).
+- Fichas iniciales colocadas según `Board.reset_starting_position()`.
+- Panel lateral con **Turno: Nombre (color)** y los **dos dados**.
+- Mensaje “Presioná ESPACIO para tirar los dados”.
+
+### Limitaciones actuales (plan de mejora inmediato)
+- **Las fichas no se mueven** aún: falta conectar clicks con `BackgammonGame.move_checker(...)`.
+- **Texto superpuesto** con el tablero en algunas resoluciones: se agregará un panel lateral opaco para mejorar legibilidad.
+- **Varias tiradas seguidas**: se limitará a una tirada por turno con una bandera `can_roll` en la UI.
+
+### Justificación de cambios en `core/`
+- `Board` pasó de una lista de enteros a una lista de diccionarios `{count, color}` para permitir:
+  - Dibujado por color en la UI.
+  - Reglas futuras (bloqueos, “comer”, bearing off) sin hacks visuales.
+- Se mantuvo la **API pública** de getters para no romper tests existentes y facilitar la transición.
+

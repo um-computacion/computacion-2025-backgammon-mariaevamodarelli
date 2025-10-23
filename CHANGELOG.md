@@ -42,11 +42,16 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   marca la partida como finalizada y limpia la última tirada de dados.
 - Tests de `BackgammonGame.end_game()` que verifican el estado `__game_over__`
   y la limpieza de los dados.
-
+- Carpeta `pygame_ui/` con `game_window.py` para la interfaz PyGame.
+- Render del tablero con 24 triángulos (12 arriba, 12 abajo) y apilado de fichas por punto.
+- HUD lateral con **turno actual** y **dados**; tecla **ESPACIO** para tirar y alternar turno.
+- Integración de UI con `BackgammonGame.start_game()` y `Dice`.
 
 ### Changed
 - Algunos tests de `Dice` actualizados para mejorar cobertura.
 - Ajustes en reportes automáticos de cobertura y pylint.
+- `Board`: ahora cada punto es un diccionario `{"count": n, "color": ...}` para soportar color de fichas en la UI y reglas futuras.
+
 
 ### Fixed
 - Arreglos en reportes generados por GitHub Actions.

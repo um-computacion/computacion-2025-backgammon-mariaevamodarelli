@@ -1,73 +1,68 @@
 class Board:
+    """Representa el tablero de Backgammon con 24 posiciones."""
 
     def __init__(self):
-        self.__points__ = [0] * 24
+        """Inicializa un tablero vacío con 24 puntos."""
+        self.__points__ = [{"count": 0, "color": None} for _ in range(24)]
 
     def get_points(self):
+        """Devuelve la lista completa de puntos del tablero."""
         return self.__points__
     
     def get_point(self, index):
-            
-            if isinstance(index, int) and 0 <= index < 24:
-                return self.__points__[index]
-            raise ValueError("El índice debe estar entre 0 y 23")
-
-    def set_point(self, index, value):
-
-        if (isinstance(index, int) and 0 <= index < 24
-                and isinstance(value, int) and value >= 0):
-            self.__points__[index] = value
-        else:
-            raise ValueError("index 0..23 y value entero >= 0")
-    def reset_starting_position(self):
-
-       
-        self.__points__ = [0] * 24
-
-        iniciales = {
-            0: 2,   
-            5: 5,   
-            7: 3,   
-            11: 5,  
-            12: 5,  
-            16: 3,  
-            18: 5,  
-            23: 2   
-        }
-        for idx, cantidad in iniciales.items():
-            self.__points__[idx] = cantidad
-
-    def get_total_checkers(self):
-        return sum(self.__points__)
-
-    def clear_board(self):
-        self.__points__ = [0] * 24
-
-    def is_empty(self):
-        return all(v == 0 for v in self.__points__)
-
-    def get_non_empty_points(self):
-        return [i for i, v in enumerate(self.__points__) if v > 0]
-
-    def has_checkers_at(self, index):
+        """Devuelve el diccionario {'count': n, 'color': c} en un punto específico."""
         if isinstance(index, int) and 0 <= index < 24:
-            return self.__points__[index] > 0
+            return self.__points__[index]
         raise ValueError("El índice debe estar entre 0 y 23")
 
-    def move_checkers(self, from_idx, to_idx, n=1):
-
-        if (isinstance(from_idx, int) and isinstance(to_idx, int) and
-            0 <= from_idx < 24 and 0 <= to_idx < 24 and
-            isinstance(n, int) and n > 0):
-            if self.__points__[from_idx] >= n:
-                self.__points__[from_idx] -= n
-                self.__points__[to_idx] += n
-            else:
-                raise ValueError("No hay suficientes fichas en el punto de origen")
+    def set_point(self, index, count, color):
+        """
+        Asigna una cantidad y color de fichas a un punto determinado.
+        Valida que el índice sea 0..23, el valor entero >= 0 y el color válido.
+        """
+        if (isinstance(index, int) and 0 <= index < 24
+                and isinstance(count, int) and count >= 0):
+            self.__points__[index]["count"] = count
+            self.__points__[index]["color"] = color
         else:
-            raise ValueError("Parámetros inválidos para mover fichas")
-                
-                
-    def reset_board(self):
-        self.__points__ = [0] * 24
+            raise ValueError("index 0..23 y count entero >= 0")
 
+    def reset_starting_position(self):
+        """Reinicia el tablero con la posición inicial estándar de Backgammon."""
+        self.__points__ = [{"count": 0, "color": None} for _ in range(24)]
+
+        # Configuración inicial simplificada
+        setup = [
+            (0, 2, "blanco"),
+            (5, 5, "negro"),
+            (7, 3, "negro"),
+            (11, 5, "blanco"),
+            (12, 5, "negro"),
+            (16, 3, "blanco"),
+            (18, 5, "blanco"),
+            (23, 2, "negro"),
+        ]
+
+        for pos, cantidad, color in setup:
+            self.__points__[pos]["count"] = cantidad
+            self.__points__[pos]["color"] = color
+
+    def get_total_checkers(self):
+        """Devuelve el total de fichas en el tablero."""
+        return sum(p["count"] for p in self.__points__)
+
+    def clear_board(self):
+        """Vacía todas las posiciones del tablero."""
+        self.__points__ = [{"count": 0, "color": None} for _ in range(24)]
+
+    def is_empty(self):
+        """Devuelve True si todas las posiciones están vacías."""
+        return all(p["count"] == 0 for p in self.__points__)
+
+    def get_non_empty_points(self):
+        """Devuelve los índices de los puntos que contienen fichas."""
+        return [i for i, p in enumerate(self.__points__) if p["count"] > 0]
+
+    def reset_board(self):
+        """Reinicia el tablero a 24 posiciones vacías."""
+        self.__points__ = [{"count": 0, "color": None} for _ in range(24)]
