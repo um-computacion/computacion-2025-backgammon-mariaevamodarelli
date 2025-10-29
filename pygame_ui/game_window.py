@@ -1,141 +1,157 @@
 import pygame
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from core.board import Board
 from core.dice import Dice
 from core.player import Player
 from core.game import BackgammonGame
-import random
 
-# Inicialización de PyGame
-pygame.init()
 
-# Dimensiones y ventana
-WIDTH, HEIGHT = 1000, 700
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Backgammon - Computación 2025")
+def pedir_nombres():
+    """Pide los nombres en la terminal antes de iniciar el juego."""
+    n1 = input("Nombre del jugador 1 (blanco): ").strip() or "Jugador 1"
+    n2 = input("Nombre del jugador 2 (negro): ").strip() or "Jugador 2"
+    return n1, n2
 
-# Colores
-WOOD = (193, 154, 107)
-DARK_WOOD = (160, 120, 80)
-WHITE = (240, 240, 240)
-BLACK = (20, 20, 20)
-RED = (220, 40, 40)
-BLUE = (30, 70, 200)
-LIGHT_GRAY = (200, 200, 200)
 
-# Fuente
-FONT = pygame.font.SysFont("arial", 22)
-
-class GameWindow:
-    """Interfaz visual del Backgammon."""
-
-    def __init__(self):
-        """Inicializa jugadores, tablero, dados y lógica principal."""
+class BackgammonUI:
+    def __init__(self, name1, name2, screen):
+        self.screen = screen
         self.board = Board()
         self.dice = Dice()
-        self.player1 = Player("Eva", "blanco")
-        self.player2 = Player("Carla", "negro")
-        self.game = BackgammonGame(self.player1, self.player2, self.board, self.dice)
-        self.running = True
+        self.player1 = Player(name1, "blanco")
+        self.player2 = Player(name2, "negro")
         self.turn = self.player1
+        self.game = BackgammonGame(self.player1, self.player2, self.board, self.dice)
+        self.board.reset_starting_position()
+        self.last_roll = (0, 0)
+        self.selected_point = None
+        self.message = "Presioná ESPACIO para tirar los dados"
+        self.awaiting_move = False
+
+        # Colores y fuentes
+        self.WOOD = (205, 170, 125)
+        self.WHITE = (255, 255, 255)
+        self.BLACK = (0, 0, 0)
+        self.RED = (220, 20, 60)
+        self.BLUE = (30, 144, 255)
+        self.GREY = (200, 200, 200)
+        self.DARK = (40, 40, 40)
+        self.FONT = pygame.font.SysFont("arial", 22)
 
     def draw_board(self):
-        """Dibuja el tablero con triángulos alternados."""
-        SCREEN.fill(WOOD)
-
-        board_rect = pygame.Rect(100, 50, 800, 600)
-        pygame.draw.rect(SCREEN, DARK_WOOD, board_rect, border_radius=12)
-
-        triangle_width = 800 // 12
+        self.screen.fill(self.WOOD)
+        triangle_width = 50
         triangle_height = 250
 
-        # Parte superior
         for i in range(12):
-            color = RED if i % 2 == 0 else LIGHT_GRAY
-            x = 100 + i * triangle_width
-            points = [(x, 50), (x + triangle_width, 50), (x + triangle_width // 2, 50 + triangle_height)]
-            pygame.draw.polygon(SCREEN, color, points)
+            color = self.RED if i % 2 == 0 else self.GREY
+            points = [
+                (i * triangle_width, 0),
+                ((i + 1) * triangle_width, 0),
+                (i * triangle_width + triangle_width / 2, triangle_height)
+            ]
+            pygame.draw.polygon(self.screen, color, points)
 
-        # Parte inferior (invertidos)
         for i in range(12):
-            color = BLUE if i % 2 == 0 else LIGHT_GRAY
-            x = 100 + i * triangle_width
-            points = [(x, 650), (x + triangle_width, 650), (x + triangle_width // 2, 650 - triangle_height)]
-            pygame.draw.polygon(SCREEN, color, points)
+            color = self.BLUE if i % 2 == 0 else self.GREY
+            points = [
+                (i * triangle_width, 650),
+                ((i + 1) * triangle_width, 650),
+                (i * triangle_width + triangle_width / 2, 650 - triangle_height)
+            ]
+            pygame.draw.polygon(self.screen, color, points)
 
-        pygame.draw.line(SCREEN, BLACK, (WIDTH // 2, 50), (WIDTH // 2, 650), 4)
-
-    def draw_checkers(self):
-        """Dibuja las fichas según la posición inicial del tablero."""
         points = self.board.get_points()
-        triangle_width = 800 // 12
         for i, p in enumerate(points):
             if p["count"] > 0:
-                color = WHITE if p["color"] == "blanco" else BLACK
-                # Coordenadas base
-                if i < 12:
-                    x = 100 + i * triangle_width + triangle_width // 2
-                    y_start = 50 + 25
-                    for j in range(p["count"]):
-                        y = y_start + j * 30
-                        pygame.draw.circle(SCREEN, color, (x, y), 15)
-                        pygame.draw.circle(SCREEN, BLACK, (x, y), 15, 2)
-                else:
-                    x = 100 + (23 - i) * triangle_width + triangle_width // 2
-                    y_start = 650 - 25
-                    for j in range(p["count"]):
-                        y = y_start - j * 30
-                        pygame.draw.circle(SCREEN, color, (x, y), 15)
-                        pygame.draw.circle(SCREEN, BLACK, (x, y), 15, 2)
+                color = self.WHITE if p["color"] == "blanco" else self.BLACK
+                for j in range(p["count"]):
+                    if i < 12:
+                        x = i * triangle_width + triangle_width / 2
+                        y = triangle_height - (j * 25) - 20
+                    else:
+                        x = (i - 12) * triangle_width + triangle_width / 2
+                        y = 650 - triangle_height + (j * 25) + 20
+                    pygame.draw.circle(self.screen, color, (int(x), int(y)), 12)
+                    if self.selected_point == i:
+                        pygame.draw.circle(self.screen, (255, 215, 0), (int(x), int(y)), 14, 2)
 
-    def draw_dice(self):
-        """Dibuja los dados en pantalla."""
-        d1, d2 = self.dice.get_last_roll()
-        dice_rect1 = pygame.Rect(880, 200, 50, 50)
-        dice_rect2 = pygame.Rect(940, 200, 50, 50)
-        pygame.draw.rect(SCREEN, WHITE, dice_rect1, border_radius=8)
-        pygame.draw.rect(SCREEN, WHITE, dice_rect2, border_radius=8)
-        pygame.draw.rect(SCREEN, BLACK, dice_rect1, 2, border_radius=8)
-        pygame.draw.rect(SCREEN, BLACK, dice_rect2, 2, border_radius=8)
+    def draw_panel(self):
+        panel = pygame.Rect(800, 100, 280, 250)
+        pygame.draw.rect(self.screen, (245, 245, 245), panel, border_radius=10)
+        pygame.draw.rect(self.screen, self.DARK, panel, 2, border_radius=10)
 
-        text1 = FONT.render(str(d1), True, BLACK)
-        text2 = FONT.render(str(d2), True, BLACK)
-        SCREEN.blit(text1, (dice_rect1.centerx - 7, dice_rect1.centery - 10))
-        SCREEN.blit(text2, (dice_rect2.centerx - 7, dice_rect2.centery - 10))
+        turno_text = self.FONT.render(f"Turno: {self.turn.get_name()} ({self.turn.get_color()})", True, self.DARK)
+        self.screen.blit(turno_text, (820, 120))
 
-        msg = FONT.render("Presioná ESPACIO para tirar los dados", True, BLACK)
-        SCREEN.blit(msg, (760, 270))
+        d1, d2 = self.last_roll
+        self.screen.blit(self.FONT.render(f"Dado 1: {d1}", True, self.DARK), (820, 160))
+        self.screen.blit(self.FONT.render(f"Dado 2: {d2}", True, self.DARK), (820, 190))
+        self.screen.blit(self.FONT.render(self.message, True, self.DARK), (810, 230))
 
-    def draw_turn(self):
-        """Muestra el turno actual."""
-        turn_text = FONT.render(f"Turno: {self.turn.get_name()} ({self.turn.get_color()})", True, BLACK)
-        SCREEN.blit(turn_text, (760, 150))
+    def get_clicked_point(self, pos):
+        x, y = pos
+        triangle_width = 50
+        if x > 600:
+            return None
+        col = int(x // triangle_width)
+        return col if y < 325 else 12 + col
 
-    def update(self):
-        """Actualiza la pantalla."""
-        pygame.display.flip()
+    def roll_dice(self):
+        self.last_roll = self.dice.roll()
+        self.message = f"Tiraste {self.last_roll}. Elegí ficha para mover."
+        self.awaiting_move = True
+
+    def handle_click(self, pos):
+        point = self.get_clicked_point(pos)
+        if point is None:
+            return
+
+        if self.selected_point is None:
+            p = self.board.get_point(point)
+            if p["color"] == self.turn.get_color() and p["count"] > 0:
+                self.selected_point = point
+                self.message = f"Punto {point} seleccionado. Elegí destino."
+            else:
+                self.message = "No podés mover esa ficha."
+        else:
+            result = self.board.move_checker(self.selected_point, point)
+            self.message = f"{result}"
+            self.selected_point = None
+            self.awaiting_move = False
+            self.turn = self.player2 if self.turn == self.player1 else self.player1
 
     def run(self):
-        """Bucle principal del juego."""
-        self.game.start_game()
-
-        while self.running:
+        clock = pygame.time.Clock()
+        running = True
+        while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.running = False
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        self.dice.roll()  # tirar dados
-                        # alternar turno
-                        self.turn = self.player2 if self.turn == self.player1 else self.player1
+                    running = False
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    if not self.awaiting_move:
+                        self.roll_dice()
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.awaiting_move:
+                    self.handle_click(event.pos)
 
             self.draw_board()
-            self.draw_checkers()
-            self.draw_turn()
-            self.draw_dice()
-            self.update()
-
-        pygame.quit()
+            self.draw_panel()
+            pygame.display.flip()
+            clock.tick(30)
 
 
 if __name__ == "__main__":
-    GameWindow().run()
+    # Primero pedimos los nombres
+    n1, n2 = pedir_nombres()
+
+    # Ahora iniciamos PyGame
+    pygame.init()
+    screen = pygame.display.set_mode((1100, 650))
+    pygame.display.set_caption("Backgammon - Computación 2025")
+
+    ui = BackgammonUI(n1, n2, screen)
+    ui.run()
