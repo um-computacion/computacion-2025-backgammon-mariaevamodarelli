@@ -2,13 +2,16 @@ class Board:
     """Representa el tablero de Backgammon con 24 posiciones."""
 
     def __init__(self):
-        """Inicializa un tablero vacío con 24 puntos."""
         self.__points__ = [{"count": 0, "color": None} for _ in range(24)]
+        self.captured_blanco = []
+        self.captured_negro = []
+
+
 
     def get_points(self):
         """Devuelve la lista completa de puntos del tablero."""
         return self.__points__
-    
+
     def get_point(self, index):
         """Devuelve el diccionario {'count': n, 'color': c} en un punto específico."""
         if isinstance(index, int) and 0 <= index < 24:
@@ -16,10 +19,7 @@ class Board:
         raise ValueError("El índice debe estar entre 0 y 23")
 
     def set_point(self, index, count, color):
-        """
-        Asigna una cantidad y color de fichas a un punto determinado.
-        Valida que el índice sea 0..23, el valor entero >= 0 y el color válido.
-        """
+        """Asigna una cantidad y color de fichas a un punto determinado."""
         if (isinstance(index, int) and 0 <= index < 24
                 and isinstance(count, int) and count >= 0):
             self.__points__[index]["count"] = count
@@ -66,37 +66,90 @@ class Board:
         """Reinicia el tablero a 24 posiciones vacías."""
         self.__points__ = [{"count": 0, "color": None} for _ in range(24)]
 
-    def move_checker(self, from_index, to_index):
-        """
-        Mueve una ficha desde un punto a otro del tablero.
+    # === MOVIMIENTO DE FICHAS ===
 
-        Reglas básicas:
-        - El índice de origen y destino debe ser válido (0..23).
-        - Debe haber al menos una ficha en el origen.
-        - Si el destino tiene color contrario con más de 1 ficha, el movimiento es inválido.
-        - Si el destino tiene solo 1 ficha del oponente, la "come" (la reemplaza).
-        - En caso válido, se resta 1 del origen y se suma 1 al destino.
-        """
-        if not (0 <= from_index < 24 and 0 <= to_index < 24):
-            raise ValueError("Los índices deben estar entre 0 y 23")
+    def move_checker(self, from_idx, to_idx):
+        """Mueve una ficha si el movimiento es válido según las reglas básicas del backgammon."""
+        if from_idx < 0 or from_idx > 23 or to_idx < 0 or to_idx > 23:
+            return "Movimiento fuera del tablero"
 
-        origen = self.__points__[from_index]
-        destino = self.__points__[to_index]
+        origen = self.__points__[from_idx]
+        destino = self.__points__[to_idx]
 
         if origen["count"] == 0:
-            return "No hay fichas en el punto de origen"
+            return "No hay fichas para mover"
 
-        if destino["color"] is None or destino["color"] == origen["color"]:
+        color = origen["color"]
+
+        # Dirección del movimiento según el color
+        if color == "blanco" and to_idx <= from_idx:
+            return "Dirección inválida para blanco"
+        if color == "negro" and to_idx >= from_idx:
+            return "Dirección inválida para negro"
+
+        # Casilla libre o propia → movimiento válido
+        if destino["count"] == 0 or destino["color"] == color:
             origen["count"] -= 1
             if origen["count"] == 0:
                 origen["color"] = None
+
             destino["count"] += 1
-            destino["color"] = origen["color"]
-            return "Movimiento válido"
+            destino["color"] = color
+            return f"{color} movió de {from_idx} a {to_idx}"
 
-        if destino["count"] == 1 and destino["color"] != origen["color"]:
-            # comer ficha
-            destino["color"] = origen["color"]
-            return "Ficha comida y movimiento válido"
+        # Comer ficha enemiga (solo si hay 1)
+        elif destino["count"] == 1 and destino["color"] != color:
+            enemigo = destino["color"]
+            if enemigo == "blanco":
+                self.captured_blanco.append(to_idx)
+            else:
+                self.captured_negro.append(to_idx)
 
-        return "Movimiento inválido: punto bloqueado"
+            destino["color"] = color
+            destino["count"] = 1
+
+            origen["count"] -= 1
+            if origen["count"] == 0:
+                origen["color"] = None
+
+            return f"{color} comió una ficha de {enemigo} en {to_idx}"
+
+        else:
+            return "Movimiento bloqueado"
+
+    def can_move(self, from_idx, to_idx):
+        """Valida reglas básicas: tablero, hay ficha, dirección, bloqueos/comer."""
+        if from_idx < 0 or from_idx > 23 or to_idx < 0 or to_idx > 23:
+            return False, "Movimiento fuera del tablero"
+
+        origen = self.__points__[from_idx]
+        destino = self.__points__[to_idx]
+
+        if origen["count"] == 0:
+            return False, "No hay fichas para mover"
+
+        color = origen["color"]
+
+        # Dirección
+        if color == "blanco" and to_idx <= from_idx:
+            return False, "Dirección inválida para blanco"
+        if color == "negro" and to_idx >= from_idx:
+            return False, "Dirección inválida para negro"
+
+        # Destino: vacío o propio → ok
+        if destino["count"] == 0 or destino["color"] == color:
+            return True, "OK"
+
+        # Blot: exactamente 1 del rival → se puede
+        if destino["count"] == 1 and destino["color"] != color:
+            return True, "OK (comer)"
+
+        # Bloqueado
+        return False, "Movimiento bloqueado"
+
+    def distance_in_direction(self, color, from_idx, to_idx):
+        """Devuelve la distancia positiva en el sentido correcto para ese color; si es negativa/0, no es válida."""
+        if color == "blanco":
+            return to_idx - from_idx  # debe ser > 0
+        else:
+            return from_idx - to_idx  # debe ser > 0

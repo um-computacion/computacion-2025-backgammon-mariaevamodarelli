@@ -29,6 +29,8 @@ class BackgammonUI:
         self.selected_point = None
         self.message = "Presioná ESPACIO para tirar los dados"
         self.awaiting_move = False
+        self.remaining_dice = []   # lista de dados pendientes del turno actual
+
 
         # Colores y fuentes
         self.WOOD = (205, 170, 125)
@@ -101,8 +103,15 @@ class BackgammonUI:
 
     def roll_dice(self):
         self.last_roll = self.dice.roll()
-        self.message = f"Tiraste {self.last_roll}. Elegí ficha para mover."
+        d1, d2 = self.last_roll
+        # preparar dados restantes
+        if d1 == d2:
+            self.remaining_dice = [d1, d1, d1, d1]  # dobles = 4 movimientos
+        else:
+            self.remaining_dice = [d1, d2]
+        self.message = f"Tiraste {d1} y {d2}. Elegí ficha para mover."
         self.awaiting_move = True
+        self.selected_point = None
 
     def handle_click(self, pos):
         point = self.get_clicked_point(pos)
@@ -110,18 +119,56 @@ class BackgammonUI:
             return
 
         if self.selected_point is None:
+            # Seleccionar origen
             p = self.board.get_point(point)
             if p["color"] == self.turn.get_color() and p["count"] > 0:
                 self.selected_point = point
-                self.message = f"Punto {point} seleccionado. Elegí destino."
+                self.message = f"Origen {point} seleccionado. Elegí destino (dados: {self.remaining_dice})."
             else:
                 self.message = "No podés mover esa ficha."
-        else:
-            result = self.board.move_checker(self.selected_point, point)
-            self.message = f"{result}"
-            self.selected_point = None
+            return
+
+        # Ya teníamos origen → ahora destino
+        origen = self.selected_point
+        destino = point
+        color = self.turn.get_color()
+
+        # 1) distancia según color (debe ser > 0)
+        dist = self.board.distance_in_direction(color, origen, destino)
+        if dist <= 0:
+            self.message = "Destino en sentido inválido para tu color."
+            return
+
+        # 2) ¿existe un dado con esa distancia?
+        if dist not in self.remaining_dice:
+            self.message = f"Ese destino no coincide con tus dados {self.remaining_dice}."
+            return
+
+        # 3) ¿pasa reglas básicas del tablero?
+        ok, why = self.board.can_move(origen, destino)
+        if not ok:
+            self.message = why
+            return
+
+        # 4) ejecutar movimiento real
+        result = self.board.move_checker(origen, destino)
+        self.message = result
+
+        # 5) consumir un dado con esa distancia (una sola vez)
+        self.remaining_dice.remove(dist)
+
+        # 6) limpiar selección
+        self.selected_point = None
+
+        # 7) si no quedan dados → cerrar turno
+        if not self.remaining_dice:
             self.awaiting_move = False
             self.turn = self.player2 if self.turn == self.player1 else self.player1
+            self.message += " | Turno del siguiente jugador."
+        else:
+            self.message += f" | Mové de nuevo (dados: {self.remaining_dice})."
+
+
 
     def run(self):
         clock = pygame.time.Clock()
