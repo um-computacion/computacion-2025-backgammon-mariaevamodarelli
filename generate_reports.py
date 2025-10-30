@@ -18,6 +18,3 @@ reports_content = f"""# Automated Reports
 """
 with open("REPORTS.md", "w") as f:
     f.write(reports_content)
-
-
-
