@@ -44,5 +44,11 @@ class TestPlayer(unittest.TestCase):
         except ValueError:
             pass
 
+    def test_set_name_and_color_rejects_invalid_values(self):
+        player = Player("Eva", "blanco")
+        with self.assertRaises(ValueError):
+            player.set_name("")
+        with self.assertRaises(ValueError):
+            player.set_color("")
 if __name__ == "__main__":
     unittest.main()
