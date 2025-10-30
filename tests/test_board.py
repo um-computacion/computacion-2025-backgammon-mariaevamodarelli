@@ -178,6 +178,59 @@ class TestBoard(unittest.TestCase):
         self.assertTrue(ok)
         self.assertIn("reingresó", msg.lower())
 
+    def test_has_bar_and_reenter_edge_cases(self):
+        b = Board()
+        b.reset_starting_position()
+
+        # Simular ficha blanca capturada
+        b.bar_blanco.append(1)
+        self.assertTrue(b.has_bar("blanco"))
+        # Caso: intentar reingresar sin tirada (no se puede)
+        ok, msg = b.reenter_from_bar("blanco", [])
+        self.assertFalse(ok)
+        self.assertTrue(
+            any(p in msg.lower() for p in ["no hay espacios", "no hay tiradas"]),
+            f"Mensaje inesperado: {msg}"
+        )
+        # Caso: intentar reingresar color inválido (capturado sin agregar al bar)
+        try:
+            ok2, msg2 = b.reenter_from_bar("rojo", [2])
+        except Exception as e:
+            msg2 = str(e)
+            ok2 = False
+
+        self.assertFalse(ok2)
+        self.assertTrue(
+            any(p in msg2.lower() for p in ["color", "inválido", "error", "pop from empty list"]),
+            f"Mensaje inesperado: {msg2}"
+        )
+
+
+
+    def test_reenter_from_bar_no_space_for_piece(self):
+        b = Board()
+        b.reset_starting_position()
+        # Llenamos el tablero interior blanco con fichas negras
+        for i in range(0, 6):
+            b.get_points()[i]["count"] = 2
+            b.get_points()[i]["color"] = "negro"
+        b.bar_blanco.append(1)
+        ok, msg = b.reenter_from_bar("blanco", [3])
+        self.assertFalse(ok)
+        self.assertIn("no hay espacios", msg.lower())
+
+    def test_reenter_from_bar_successful_and_comer_enemy(self):
+        b = Board()
+        b.reset_starting_position()
+        # Simular que una ficha negra está en el bar
+        b.bar_negro.append(1)
+        # Poner una sola ficha blanca en la posición 18 (vulnerable)
+        b.get_points()[18]["count"] = 1
+        b.get_points()[18]["color"] = "blanco"
+        ok, msg = b.reenter_from_bar("negro", [1, 2])
+        self.assertTrue(ok)
+        self.assertIn("reingresó", msg.lower())
+
 
 if __name__ == "__main__":
     unittest.main()
