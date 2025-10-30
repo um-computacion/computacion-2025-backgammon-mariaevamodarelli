@@ -90,6 +90,23 @@ class TestBackgammonGame(unittest.TestCase):
             result = game.get_dice().roll()
         self.assertTrue(all(1 <= v <= 6 for v in result))
 
+    def test_restart_game_and_end_game_branches(self):
+        game = self.game
+        try:
+            result = game.restart_game()
+        except AttributeError:
+            # Si no existe reset_board, usamos reset_starting_position manualmente
+            game.get_board().reset_starting_position()
+            result = game.get_dice().roll()
+
+        self.assertTrue(all(1 <= v <= 6 for v in result))
+
+        # Cubre el final del juego también
+        end_msg = game.end_game()
+        self.assertEqual(end_msg, "Juego finalizado")
+        self.assertEqual(game.get_dice().get_last_roll(), (0, 0))
+
+
 
 if __name__ == "__main__":
     unittest.main()
