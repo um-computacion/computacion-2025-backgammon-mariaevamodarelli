@@ -1,104 +1,228 @@
-# Justificación
+# Justificación del Diseño
 
-Arranqué por la lógica en `core/`. La primera clase implementada es `Dice` porque es independiente del resto y me permite empezar a testear rápido.  
+## Resumen del Diseño General
 
-## Clase Dice
-- **Atributo `__last_roll__`**: se mantiene como tupla `(d1, d2)` para registrar la última tirada.  
-- **Método `roll()`**: usa `random.randint(1, 6)` para simular el lanzamiento de dos dados.  
-- **Método `is_double()`**: agregado porque en Backgammon una tirada doble permite movimientos adicionales, y tener un método que lo detecte facilita la lógica.  
-- **Tests**: se validan inicialización, tiradas válidas, actualización del estado interno y casos de tiradas dobles.
+El proyecto Backgammon se estructura en dos capas principales:
+- **`core/`**: contiene toda la lógica del juego (reglas, validaciones, estado).
+- **`pygame_ui/`**: interfaz gráfica que consume la lógica sin duplicarla.
 
-## Clase Player
-- **Atributos privados (`__name__`, `__color__`, `__checkers__`)**: definidos siguiendo la consigna de prefijo `__`.  
-- **Getters y setters**: se usan para encapsular la lógica y validar entradas.  
-  - `set_name` y `set_color`: validan que no sean vacíos o solo espacios.  
-  - `set_checkers`: valida que la cantidad de fichas sea un entero entre 0 y 15 (cada jugador comienza con 15 fichas y nunca puede tener más).  
-- **Justificación**: con setters que validan se asegura consistencia de los objetos y se evitan estados inválidos.  
-- **Tests**: cubren inicialización, cambios de nombre y color, validaciones de entradas inválidas y límite de 15 fichas.
+Esta separación permite testear la lógica sin dependencias gráficas y facilita agregar nuevas interfaces (CLI, web) sin modificar reglas del juego.
 
-## Clase Board
-- **Atributo `__points__`**: lista de 24 posiciones que representan los puntos del tablero de Backgammon.  
-- **Getters y setters de puntos**: verifican que el índice esté entre 0 y 23 y que la cantidad de fichas sea un entero no negativo, evitando estados inválidos en el tablero.  
-- **Método `reset_starting_position()`**: inicializa el tablero con la distribución estándar de Backgammon (dos fichas en el punto 24, cinco en el 13, tres en el 8, cinco en el 6, y la distribución espejo para el otro jugador). Se decidió guardar solamente las cantidades, sin distinguir colores aún, para simplificar la lógica inicial.  
-- **Justificación**: el uso de una lista fija de 24 posiciones hace más simple modelar el tablero y manejar validaciones de rango. La inicialización permite empezar a probar jugadas más adelante.  
-- **Tests**: verifican que el tablero arranca con 24 posiciones, que las posiciones clave se inicializan correctamente, que el total de fichas es 30 (15 por jugador) y que los índices inválidos lanzan `ValueError`.
+## Clases Principales
 
-### Métodos adicionales de Board
-- **`get_total_checkers()`**: permite verificar rápidamente el total de fichas sobre el tablero.  
-- **`clear_board()`** y **`reset_board()`**: vacían el tablero dejando las 24 posiciones en cero, útiles para reiniciar una partida.  
-- **`is_empty()`**: devuelve `True` si el tablero no tiene fichas, lo cual facilita validar estados iniciales o finales.  
-- **`get_non_empty_points()`**: devuelve los índices de los puntos que tienen fichas, para recorrer solo las posiciones activas.  
-- **`has_checkers_at(index)`**: indica si un punto específico tiene fichas, evitando leer directamente la lista interna.  
-- **`move_checkers(from_idx, to_idx, n)`**: implementa la lógica básica de mover fichas entre puntos del tablero, validando índices y cantidad.  
+### Dice
+- **Responsabilidad**: manejar tiradas de dados.
+- **Atributo `__last_roll__`**: tupla `(d1, d2)` que registra la última tirada.
+- **Método `is_double()`**: detecta tiradas dobles (importante en Backgammon para movimientos adicionales).
+- **Justificación**: clase independiente y simple, ideal para comenzar el desarrollo y establecer patrones de testing.
 
-Estos métodos amplían la funcionalidad de la clase `Board` sin modificar su estructura central. Sirven como utilidades para validar estados del tablero y preparar la lógica del juego más adelante.  
-- **Tests**: se agregaron pruebas unitarias para cada nuevo método verificando su comportamiento esperado y la detección de errores en casos inválidos.
+### Player
+- **Responsabilidad**: almacenar información del jugador.
+- **Atributos**: `__name__`, `__color__`, `__checkers__` (todos privados según requisitos).
+- **Validaciones en setters**:
+  - Nombres y colores no pueden ser vacíos.
+  - Cantidad de fichas debe estar entre 0 y 15.
+- **Justificación**: encapsulación mediante getters/setters evita estados inválidos.
 
-## Clase BackgammonGame## Clase BackgammonGame
-- **Propósito**: orquestar las piezas del juego sin mezclar responsabilidades. La lógica de dados, tablero y jugadores se mantiene en sus clases; `BackgammonGame` solo las integra.
-- **Diseño**: el constructor recibe `player1`, `player2`, `board` y `dice`. Se exponen getters simples (`get_player1`, `get_player2`, `get_board`, `get_dice`) para acceder a los componentes cuando se necesiten.
-- **Justificación**: separar la orquestación del estado evita acoplar reglas de juego dentro de `Board`, `Dice` o `Player`. Esto facilita testear cada parte por separado y permite evolucionar reglas (turnos, movimientos válidos, etc.) más adelante.
-- **Tests**: se prueba que al crear `BackgammonGame` con instancias reales de `Player`, `Board` y `Dice`, los getters devuelven exactamente las mismas referencias (inyección de dependencias).
+### Checker
+- **Responsabilidad**: representar una ficha individual.
+- **Atributo `__color__`**: solo acepta "blanco" o "negro".
+- **Justificación**: aunque simple, mantener una clase separada respeta Single Responsibility y facilita extensiones futuras.
 
-### Método start_game()
-- **Propósito**: preparar el inicio de la partida combinando los componentes principales.
-  Llama a `reset_starting_position()` del `Board` para dejar el tablero en la posición inicial
-  y a `roll()` de `Dice` para realizar la primera tirada.
-- **Justificación**: este método centraliza el proceso de inicio sin mezclar responsabilidades.
-  Permite que la clase `BackgammonGame` coordine las otras clases sin modificar su lógica interna.
-  De esta forma, se conserva la separación de responsabilidades y se facilita la extensión futura
-  (por ejemplo, manejar turnos o verificar quién empieza).
-- **Tests**: se validó que el tablero quede con 30 fichas (15 por jugador) y que la primera tirada
-  devuelva dos valores entre 1 y 6.
+### Board
+- **Responsabilidad**: gestionar el tablero y validar movimientos.
+- **Estructura de datos**: lista de 24 diccionarios `{"count": n, "color": str|None}`.
+  - Decisión tomada para soportar colores sin estructuras auxiliares complejas.
+  - Alternativas descartadas: lista de enteros (no guarda color), clases Point (overhead innecesario).
+- **Atributos adicionales**: `__bar_blanco__`, `__bar_negro__`, `__bearoff_blanco__`, `__bearoff_negro__`.
 
-### Método restart_game()
-- **Propósito**: reiniciar una partida sin necesidad de crear nuevos objetos. 
-  Limpia el tablero, vuelve a dejar las fichas en la posición inicial y lanza los dados nuevamente.  
-- **Justificación**: este método simplifica el reinicio del juego, evitando repetir pasos manuales
-  o crear instancias nuevas de las clases principales. Es útil para pruebas, reinicios o nuevas rondas.  
-- **Tests**: se comprobó que, tras llamar a `restart_game()`, el tablero queda nuevamente con
-  30 fichas (15 por jugador) y se genera una nueva tirada de dados válida.
+#### Métodos clave de Board
 
-### Método end_game()
-- **Propósito**: indicar el final de la partida y limpiar los estados relacionados, 
-  en este caso la última tirada de dados.  
-- **Justificación**: al mantener un atributo interno `__game_over__` se puede 
-  controlar desde la clase principal si la partida sigue o no, 
-  sin necesidad de eliminar las instancias de `Board`, `Dice` o `Player`.  
-- **Tests**: se verifica que al finalizar el juego, el atributo `__game_over__` 
-  quede en `True`, que los dados se reinicien a `(0, 0)` y que el método 
-  devuelva el mensaje `"Juego finalizado"`.
+**`distance_in_direction(color, from_idx, to_idx)`**
+- Calcula distancia de movimiento según dirección correcta:
+  - Blanco (antihorario): `to_idx - from_idx` (0→23).
+  - Negro (horario): `from_idx - to_idx` (23→0).
+- Justificación: centraliza lógica de dirección evitando duplicación y errores.
 
-## Interfaz gráfica con PyGame
+**`can_move(from_idx, to_idx)`**
+- Valida movimiento sin ejecutarlo.
+- Retorna tupla `(bool, mensaje)` para feedback al usuario.
+- Justificación: separar validación de ejecución facilita UI y testing.
 
-### Objetivo
-Agregar una interfaz mínima pero funcional para **visualizar** el backgammon, **tirar los dados** y **ver el turno** de cada jugador, reutilizando toda la lógica existente en `core/` sin duplicar reglas dentro de la UI.
+**`move_checker(from_idx, to_idx)`**
+- Ejecuta movimiento validado.
+- Implementa captura de fichas (envío al bar).
+- Maneja bear off (sacar fichas del tablero).
+- Justificación: concentra toda la lógica de modificación del tablero en un lugar.
 
-### Decisiones de diseño
-- **Separación de responsabilidades**: la UI vive en `pygame_ui/game_window.py`. La lógica del juego (tablero, jugadores, dados) sigue en `core/`.
-- **Estructura del tablero**: `Board` representa 24 puntos (0..23). Para poder dibujar fichas de cada color, cada punto guarda un diccionario con `{"count": n, "color": "blanco"|"negro"|None}`.
-- **Mapeo visual**:
-  - 12 triángulos arriba (izq→der) y 12 abajo (der→izq) para simular el tablero real.
-  - Las fichas se dibujan como círculos (blanco/negro) apilados desde el borde.
-- **Flujo de inicio**: `BackgammonGame.start_game()` reinicia posiciones y hace una primera tirada. La UI la muestra junto con el **turno actual**.
-- **Interacción**:
-  - **ESPACIO**: tira los dados y alterna el turno (visual). Por ahora no mueve fichas; la UI sólo refleja estado.
-  - Cierre de ventana con el evento estándar de PyGame.
+**`reenter_from_bar(color, dice_values)`**
+- Reingresa fichas capturadas según valores de dados.
+- Blancas: puntos 0-5, negras: puntos 18-23.
+- Justificación: regla obligatoria de Backgammon (no se puede mover hasta salir del bar).
 
-### Qué se ve en pantalla
-- Tablero con triángulos alternados (superior rojo/gris, inferior azul/gris).
-- Fichas iniciales colocadas según `Board.reset_starting_position()`.
-- Panel lateral con **Turno: Nombre (color)** y los **dos dados**.
-- Mensaje “Presioná ESPACIO para tirar los dados”.
+### BackgammonGame
+- **Responsabilidad**: orquestar componentes sin implementar reglas específicas.
+- **Patrón**: inyección de dependencias (recibe `player1`, `player2`, `board`, `dice` por constructor).
+- **Métodos principales**:
+  - `start_game()`: inicializa tablero y primera tirada.
+  - `restart_game()`: reinicia partida sin crear nuevos objetos.
+  - `end_game()`: marca finalización y limpia estado.
+  - `move_checker(player, from, to)`: valida jugador y delega a Board.
+- **Justificación**: mantiene lógica de juego separada de componentes individuales, facilita testing con mocks.
 
-### Limitaciones actuales (plan de mejora inmediato)
-- **Las fichas no se mueven** aún: falta conectar clicks con `BackgammonGame.move_checker(...)`.
-- **Texto superpuesto** con el tablero en algunas resoluciones: se agregará un panel lateral opaco para mejorar legibilidad.
-- **Varias tiradas seguidas**: se limitará a una tirada por turno con una bandera `can_roll` en la UI.
+### BackgammonUI
+- **Responsabilidad**: renderizar y capturar input del usuario.
+- **Ubicación**: `pygame_ui/game_window.py` (separado de `core/`).
+- **Componentes visuales**:
+  - Tablero: 24 triángulos (12 superiores, 12 inferiores) con fichas apiladas.
+  - Bar central: muestra fichas capturadas.
+  - Panel lateral: turno, dados, mensajes, instrucciones.
+- **Interacción**: ESPACIO para dados, clicks para mover, click derecho para cancelar.
+- **Justificación**: UI consume APIs públicas de `core/` sin duplicar lógica, permite agregar otras interfaces fácilmente.
 
-### Justificación de cambios en `core/`
-- `Board` pasó de una lista de enteros a una lista de diccionarios `{count, color}` para permitir:
-  - Dibujado por color en la UI.
-  - Reglas futuras (bloqueos, “comer”, bearing off) sin hacks visuales.
-- Se mantuvo la **API pública** de getters para no romper tests existentes y facilitar la transición.
+## Decisiones de Diseño Relevantes
 
+### 1. Direcciones de movimiento (corrección aplicada)
+**Problema inicial**: fichas se movían en direcciones invertidas.
+
+**Solución**: 
+- Invertir fórmulas en `distance_in_direction()`.
+- Ajustar validaciones en `move_checker()`.
+
+**Por qué falló antes**: confusión entre índices visuales y lógicos del tablero.
+
+### 2. Validación separada de ejecución
+**Decisión**: `can_move()` valida, `move_checker()` ejecuta.
+
+**Por qué**: UI puede preguntar "¿es válido?" sin modificar estado, facilita debugging y testing.
+
+### 3. Panel de información mejorado
+**Cambios aplicados**:
+- Tamaño: 330x500px (antes 300x270px).
+- Tipografía: 18-28pt (antes 14-26pt).
+- Dados visuales: 40x40px como cubos.
+- Sección "Disponibles" para dados restantes.
+
+**Por qué**: legibilidad era insuficiente, usuarios reportaban dificultad para leer información.
+
+## Excepciones y Manejo de Errores
+
+### Estrategia
+- **ValueError** para entradas inválidas (nombres vacíos, índices fuera de rango, valores fuera de límites).
+- **Mensajes descriptivos** en validaciones de movimiento (retornos en vez de excepciones).
+
+### Ejemplos por clase
+- **Dice**: `set_last_roll()` lanza `ValueError` si no es tupla válida.
+- **Player**: setters lanzan `ValueError` si validaciones fallan.
+- **Checker**: `__init__` lanza `ValueError` si color no es "blanco" o "negro".
+- **Board**: `can_move()` retorna `(False, mensaje)` en vez de lanzar excepción (mejor para UI).
+
+### Justificación
+- Excepciones para errores de programación (bugs).
+- Retornos con mensajes para errores de usuario (jugadas inválidas).
+- Facilita mostrar feedback sin try-catch excesivos.
+
+## Estrategia de Testing
+
+### Herramientas
+- **pytest**: framework principal.
+- **pytest-cov**: medición de cobertura.
+- **GitHub Actions**: CI/CD automático.
+- **SonarCloud**: análisis de calidad.
+
+### Cobertura
+- **Objetivo**: 90%+ según requisitos.
+- **Estado actual**: [indicar porcentaje]
+- **Prioridad**: lógica crítica (movimientos, validaciones) con 100%.
+
+### Tipos de tests
+- **Unitarios**: cada clase aislada (Dice, Player, Checker, Board).
+- **Integración**: BackgammonGame coordinando componentes.
+- **Casos cubiertos**: inicialización, validaciones, casos borde, excepciones.
+
+## Cumplimiento de SOLID
+
+### Single Responsibility
+✅ Cada clase tiene una única responsabilidad:
+- Dice: solo dados.
+- Player: solo información de jugador.
+- Board: solo tablero y validaciones.
+- BackgammonGame: solo orquestación.
+- BackgammonUI: solo renderizado.
+
+### Open/Closed
+✅ Clases diseñadas para extenderse sin modificar:
+- Agregar nuevas UIs sin tocar `core/`.
+- Agregar variantes de juego extendiendo clases base.
+
+### Liskov Substitution
+✅ No hay herencia compleja (diseño basado en composición).
+
+### Interface Segregation
+✅ Interfaces mínimas: cada clase expone solo lo necesario.
+
+### Dependency Inversion
+✅ BackgammonGame recibe dependencias por constructor (inyección).
+✅ UI depende de abstracciones (APIs públicas) no de detalles.
+
+## Diagrama de Clases Simplificado
+```
+┌──────────────────┐
+│ BackgammonGame   │
+│ (Orquestador)    │
+└────────┬─────────┘
+         │
+    ┌────┴─────┬────────┬────────┐
+    │          │        │        │
+    ▼          ▼        ▼        ▼
+┌─────────┐ ┌──────┐ ┌────────┐ ┌────────┐
+│ Player  │ │ Dice │ │ Board  │ │Checker │
+│ (x2)    │ │      │ │        │ │        │
+└─────────┘ └──────┘ └────────┘ └────────┘
+                          │
+                          │ usa (concepto)
+                          │
+                          ▼
+                     ┌─────────────┐
+                     │BackgammonUI │
+                     │ (Interfaz)  │
+                     └─────────────┘
+```
+
+## Evolución del Proyecto
+
+### Sprint 1
+- Estructura base, Dice, Player, Checker.
+- Tests unitarios, CI/CD.
+
+### Sprint 2
+- Board con lógica completa, BackgammonGame.
+- Tests de integración.
+
+### Sprint 3 (actual)
+- Interfaz gráfica funcional.
+- Corrección de direcciones de movimiento.
+- Panel mejorado visualmente.
+- Captura y bar implementados.
+
+### Próximos pasos
+- Bear off completo.
+- Detección de victoria.
+- CLI funcional.
+- Persistencia Redis (opcional).
+
+## Pendientes Conocidos
+
+- [ ] Bear off con todas las validaciones.
+- [ ] Detectar condición de victoria.
+- [ ] Validar jugadas imposibles (sin movimientos válidos).
+- [ ] CLI completamente funcional.
+- [ ] Consolidar lógica duplicada entre Game y Board.
+
+## Referencias
+
+- Reglas: https://es.wikipedia.org/wiki/Backgammon
+- Pygame: https://www.pygame.org/docs/
+- Docstrings: https://realpython.com/documenting-python-code/
+- Keep a Changelog: https://keepachangelog.com/en/1.1.0/
+- Juego de referencia: https://www.ludoteka.com/clasika/backgammon-es.html

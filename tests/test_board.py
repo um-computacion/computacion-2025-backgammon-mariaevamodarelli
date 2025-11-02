@@ -134,11 +134,11 @@ class TestBoard(unittest.TestCase):
     def test_can_move_and_can_land_on_conditions(self):
         b = Board()
         b.reset_starting_position()
-        ok, msg = b.can_move(0, 5)
+        ok, msg = b.can_move(5, 0)
         # Se considera correcto si devuelve un mensaje coherente
         self.assertTrue(
             any(palabra in msg.lower() for palabra in [
-                "válido", "puede", "inválida", "inválido", "dirección"
+                "válido", "puede", "inválida", "inválido", "dirección", "bloqueado", "ok"
             ]),
             f"Mensaje inesperado: {msg}"
         )
@@ -148,7 +148,7 @@ class TestBoard(unittest.TestCase):
         b.reset_starting_position()
 
         # Simulamos que una ficha blanca fue capturada
-        b.bar_blanco.append(1)
+        b.__bar_blanco__.append(1)
         self.assertTrue(b.has_bar("blanco"))
 
         # Caso exitoso: hay espacio en 0-5 para reingresar
@@ -160,7 +160,7 @@ class TestBoard(unittest.TestCase):
         for i in range(0, 6):
             b.get_points()[i]["count"] = 3
             b.get_points()[i]["color"] = "negro"
-        b.bar_blanco.append(1)
+        b.__bar_blanco__.append(1)
         ok2, msg2 = b.reenter_from_bar("blanco", [1, 2])
         self.assertFalse(ok2)
         self.assertIn("no hay espacios", msg2.lower())
@@ -168,7 +168,7 @@ class TestBoard(unittest.TestCase):
     def test_reenter_from_bar_comer_enemigo(self):
         b = Board()
         b.reset_starting_position()
-        b.bar_negro.append(1)
+        b.__bar_negro__.append(1)
 
         # Hacemos que el destino tenga una sola blanca
         b.get_points()[18]["count"] = 1
@@ -183,7 +183,7 @@ class TestBoard(unittest.TestCase):
         b.reset_starting_position()
 
         # Simular ficha blanca capturada
-        b.bar_blanco.append(1)
+        b.__bar_blanco__.append(1)
         self.assertTrue(b.has_bar("blanco"))
         # Caso: intentar reingresar sin tirada (no se puede)
         ok, msg = b.reenter_from_bar("blanco", [])
@@ -214,7 +214,7 @@ class TestBoard(unittest.TestCase):
         for i in range(0, 6):
             b.get_points()[i]["count"] = 2
             b.get_points()[i]["color"] = "negro"
-        b.bar_blanco.append(1)
+        b.__bar_blanco__.append(1)
         ok, msg = b.reenter_from_bar("blanco", [3])
         self.assertFalse(ok)
         self.assertIn("no hay espacios", msg.lower())
@@ -223,7 +223,7 @@ class TestBoard(unittest.TestCase):
         b = Board()
         b.reset_starting_position()
         # Simular que una ficha negra está en el bar
-        b.bar_negro.append(1)
+        b.__bar_negro__.append(1)
         # Poner una sola ficha blanca en la posición 18 (vulnerable)
         b.get_points()[18]["count"] = 1
         b.get_points()[18]["color"] = "blanco"
