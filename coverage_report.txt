@@ -9,10 +9,10 @@ core/game.py               45      8    82%   46-48, 83, 88-93
 core/player.py             23      0   100%
 pygame_ui/__init__.py       0      0   100%
 tests/__init__.py           0      0   100%
-tests/test_board.py       132      1    99%   183
+tests/test_board.py       166      1    99%   236
 tests/test_checker.py      13      1    92%   17
 tests/test_dice.py         48      1    98%   61
-tests/test_game.py         62      1    98%   95
+tests/test_game.py         73      1    99%   112
 tests/test_player.py       44      2    95%   43, 54
 -----------------------------------------------------
-TOTAL                     490     46    91%
+TOTAL                     535     46    91%
