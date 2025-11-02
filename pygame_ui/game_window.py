@@ -39,6 +39,7 @@ class BackgammonUI:
         self.BLUE = (30, 144, 255)
         self.GREY = (200, 200, 200)
         self.DARK = (40, 40, 40)
+        self.GOLD = (255, 215, 0)
         self.FONT = pygame.font.SysFont("arial", 22)
 
     # === Tablero ===
@@ -82,43 +83,149 @@ class BackgammonUI:
                         x = (i - 12) * triangle_width + triangle_width / 2
                         y = 650 - triangle_height + (j * 25) + 20
                     pygame.draw.circle(self.screen, color, (int(x), int(y)), 12)
+                    pygame.draw.circle(self.screen, (80, 80, 80), (int(x), int(y)), 12, 1)
+                    
                     if self.selected_point == i:
-                        pygame.draw.circle(self.screen, (255, 215, 0), (int(x), int(y)), 14, 2)
+                        pygame.draw.circle(self.screen, self.GOLD, (int(x), int(y)), 15, 3)
 
-        # barra
-        pygame.draw.rect(self.screen, self.DARK, (600, 0, 40, 650))
+        # BAR CENTRAL
+        pygame.draw.rect(self.screen, (210, 180, 140), (300, 0, 10, 650))
+        
+        # Bear off zones
+        pygame.draw.rect(self.screen, (210, 180, 140), (600, 325, 40, 325))
+        pygame.draw.rect(self.screen, (210, 180, 140), (600, 0, 40, 325))
         self.draw_bar_fichas()
 
     def draw_bar_fichas(self):
-        bx, by = 620, 325
-        for j, _ in enumerate(self.board.bar_blanco):
-            pygame.draw.circle(self.screen, self.WHITE, (bx, by - j * 20), 10)
-        for j, _ in enumerate(self.board.bar_negro):
-            pygame.draw.circle(self.screen, self.BLACK, (bx, by + j * 20), 10)
+        bar_x = 305
+        bar_y_center = 325
+        
+        # Fichas blancas en el bar
+        for i in range(len(self.board.__bar_blanco__)):
+            y = bar_y_center + (i * 25) + 20
+            pygame.draw.circle(self.screen, self.WHITE, (bar_x, y), 12)
+            pygame.draw.circle(self.screen, (80, 80, 80), (bar_x, y), 12, 1)
+        
+        # Fichas negras en el bar
+        for i in range(len(self.board.__bar_negro__)):
+            y = bar_y_center - (i * 25) - 20
+            pygame.draw.circle(self.screen, self.BLACK, (bar_x, y), 12)
+            pygame.draw.circle(self.screen, (80, 80, 80), (bar_x, y), 12, 1)
+
 
     def draw_panel(self):
-        panel = pygame.Rect(780, 90, 300, 270)
-        pygame.draw.rect(self.screen, (245, 245, 245), panel, border_radius=10)
-        pygame.draw.rect(self.screen, self.DARK, panel, 2, border_radius=10)
+        # Panel principal con sombra (más grande)
+        shadow = pygame.Rect(755, 75, 330, 500)
+        pygame.draw.rect(self.screen, (180, 180, 180), shadow, border_radius=12)
+        
+        panel = pygame.Rect(750, 70, 330, 500)
+        pygame.draw.rect(self.screen, (255, 255, 255), panel, border_radius=12)
+        pygame.draw.rect(self.screen, (100, 100, 100), panel, 3, border_radius=12)
 
-        y = 110
-        def line(txt):
-            nonlocal y
-            surf = self.FONT.render(txt, True, self.DARK)
-            self.screen.blit(surf, (800, y))
-            y += 28
+        # Título del panel
+        title_font = pygame.font.SysFont("arial", 26, bold=True)
+        title = title_font.render("INFORMACIÓN", True, self.DARK)
+        self.screen.blit(title, (820, 105))
+        
+        # Línea separadora
+        pygame.draw.line(self.screen, (200, 200, 200), (800, 140), (1060, 140), 2)
 
-        line(f"Turno: {self.turn.get_name()} ({self.turn.get_color()})")
+        # Información del turno con color
+        y = 155
+        turn_font = pygame.font.SysFont("arial", 20, bold=True)
+        label_font = pygame.font.SysFont("arial", 18)
+        value_font = pygame.font.SysFont("arial", 18, bold=True)
+        
+        # Turno actual
+        turn_label = label_font.render("Turno:", True, (80, 80, 80))
+        self.screen.blit(turn_label, (800, y))
+        
+        player_name = self.turn.get_name()
+        player_color = self.turn.get_color()
+        color_display = self.WHITE if player_color == "blanco" else self.BLACK
+        
+        # Círculo indicador del color
+        pygame.draw.circle(self.screen, color_display, (870, y + 10), 8)
+        pygame.draw.circle(self.screen, (100, 100, 100), (870, y + 10), 8, 2)
+        
+        player_text = turn_font.render(f"{player_name}", True, self.DARK)
+        self.screen.blit(player_text, (890, y))
+        
+        y += 40
+        
+        # Dados
         d1, d2 = self.last_roll
-        line(f"Dado 1: {d1}")
-        line(f"Dado 2: {d2}")
+        dice_label = label_font.render("Dados:", True, (80, 80, 80))
+        self.screen.blit(dice_label, (800, y))
+        
+        # Dibujar dados como cubos
+        dice_size = 35
+        dice_x = 880
+        
+        # Dado 1
+        dice_rect1 = pygame.Rect(dice_x, y - 5, dice_size, dice_size)
+        pygame.draw.rect(self.screen, self.WHITE, dice_rect1, border_radius=5)
+        pygame.draw.rect(self.screen, self.DARK, dice_rect1, 2, border_radius=5)
+        dice_val1 = value_font.render(str(d1), True, self.DARK)
+        self.screen.blit(dice_val1, (dice_x + 12, y))
+        
+        # Dado 2
+        dice_rect2 = pygame.Rect(dice_x + 50, y - 5, dice_size, dice_size)
+        pygame.draw.rect(self.screen, self.WHITE, dice_rect2, border_radius=5)
+        pygame.draw.rect(self.screen, self.DARK, dice_rect2, 2, border_radius=5)
+        dice_val2 = value_font.render(str(d2), True, self.DARK)
+        self.screen.blit(dice_val2, (dice_x + 62, y))
+        
+        y += 50
+        
+        # Dados restantes
+        if self.remaining_dice:
+            remaining_label = label_font.render("Disponibles:", True, (80, 80, 80))
+            self.screen.blit(remaining_label, (800, y))
+            
+            remaining_text = value_font.render(str(self.remaining_dice), True, (0, 120, 0))
+            self.screen.blit(remaining_text, (920, y))
+            y += 35
+        
+        # Línea separadora
+        pygame.draw.line(self.screen, (200, 200, 200), (800, y), (1060, y), 1)
+        y += 15
+        
+        # Mensaje con wrap mejorado
         msg = self.message
-        if len(msg) > 32:
-            line(msg[:32])
-            line(msg[32:])
-        else:
-            line(msg)
-
+        msg_font = pygame.font.SysFont("arial", 16)
+        max_width = 250
+        words = msg.split()
+        lines = []
+        current_line = ""
+        
+        for word in words:
+            test_line = current_line + word + " "
+            if msg_font.size(test_line)[0] <= max_width:
+                current_line = test_line
+            else:
+                if current_line:
+                    lines.append(current_line)
+                current_line = word + " "
+        if current_line:
+            lines.append(current_line)
+        
+        for line in lines[:3]:  # Máximo 3 líneas
+            msg_surf = msg_font.render(line.strip(), True, (50, 50, 50))
+            self.screen.blit(msg_surf, (800, y))
+            y += 22
+        
+        # Instrucciones al pie
+        y = 320
+        pygame.draw.line(self.screen, (200, 200, 200), (800, y), (1060, y), 1)
+        y += 10
+        
+        help_font = pygame.font.SysFont("arial", 14, italic=True)
+        help1 = help_font.render("ESPACIO: Tirar dados", True, (100, 100, 100))
+        help2 = help_font.render("Click derecho: Cancelar", True, (100, 100, 100))
+        self.screen.blit(help1, (800, y))
+        self.screen.blit(help2, (800, y + 20))
+    
     # === Clicks ===
     def get_clicked_point(self, pos):
         x, y = pos
@@ -186,6 +293,8 @@ class BackgammonUI:
         origen = self.selected_point
         destino = point
         dist = self.board.distance_in_direction(color_turno, origen, destino)
+        if dist < 0:
+            dist = abs(dist)
 
         if dist <= 0 or dist not in self.remaining_dice:
             if p["count"] > 0 and p["color"] == color_turno:

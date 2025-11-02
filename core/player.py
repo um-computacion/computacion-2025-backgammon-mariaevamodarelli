@@ -1,3 +1,4 @@
+
 class Player:
     """Representa un jugador del Backgammon."""
 
