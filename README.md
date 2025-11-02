@@ -53,3 +53,32 @@ nombre_del_entorno\Scripts\activate        # Windows
 
 instalar dependencias:
 pip install -r requirements.txt
+
+Modo texto (CLI)
+
+Desde la carpeta raíz del proyecto:
+python3 cli/test_game.py
+
+Modo gráfico (Pygame)
+con el enotorno activo: python3 pygame_ui/game_window.py
+
+Testing y cobertura
+
+Los tests se implementaron con el módulo estándar unittest.
+Para ejecutar todos los tests:
+
+coverage run -m unittest discover
+coverage report -m
+
+Esto genera un reporte de cobertura de código.
+El objetivo es alcanzar al menos un 90 % de cobertura sobre el código fuente.
+
+Diseño y principios aplicados
+
+Programación orientada a objetos: cada entidad (tablero, jugador, ficha, dado) se modeló como una clase independiente.
+
+Principios SOLID: se respetaron los principios de responsabilidad única y bajo acoplamiento.
+
+Testing: se cubren los módulos core y cli para garantizar consistencia lógica.
+
+Visualización: el módulo pygame_ui ofrece una interfaz intuitiva y funcional.
